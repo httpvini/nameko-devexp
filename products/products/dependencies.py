@@ -43,6 +43,14 @@ class StorageWrapper:
         else:
             return self._from_hash(product)
 
+    def delete(self, product_id):
+        fields = ['id','title','passenger_capacity','maximum_speed','in_stock']
+        for each_field in fields:
+
+            product = self.client.hdel(self._format_key(product_id),each_field)
+        #return self._from_hash(product)
+
+
     def list(self):
         keys = self.client.keys(self._format_key('*'))
         for key in keys:
