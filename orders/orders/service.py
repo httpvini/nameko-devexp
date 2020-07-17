@@ -63,6 +63,11 @@ class OrdersService:
 
     @rpc
     def delete_order(self, order_id):
+        order = self.db.query(OrderDetail).get(order_id)
+        self.db.delete(order)
+        self.db.commit()
+
         order = self.db.query(Order).get(order_id)
         self.db.delete(order)
         self.db.commit()
+

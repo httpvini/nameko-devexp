@@ -28,11 +28,28 @@ class GatewayService(object):
     def get_product(self, request, product_id):
         """Gets product by `product_id`
         """
-        product = self.products_rpc.get(product_id)
+        if product_id == 'all':
+            product= {prod['id']: prod for prod in self.products_rpc.list()}
+        else:
+            product = self.products_rpc.get(product_id)
         return Response(
-            ProductSchema().dumps(product).data,
+            json.dumps(product),
             mimetype='application/json'
         )
+
+    @http(
+        "DELETE", "/products/<string:product_id>",
+        expected_exceptions=ProductNotFound
+    )
+    def delete_product(self, request, product_id):
+        """Gets product by `product_id`
+        """
+        product = self.products_rpc.delete(product_id)
+        return Response(
+            json.dumps({"res":"Product deleted"}),
+            mimetype='application/json'
+        )
+
 
     @http(
         "POST", "/products",
@@ -40,9 +57,7 @@ class GatewayService(object):
     )
     def create_product(self, request):
         """Create a new product - product data is posted as json
-
         Example request ::
-
             {
                 "id": "the_odyssey",
                 "title": "The Odyssey",
@@ -50,12 +65,8 @@ class GatewayService(object):
                 "maximum_speed": 5,
                 "in_stock": 10
             }
-
-
         The response contains the new product ID in a json document ::
-
             {"id": "the_odyssey"}
-
         """
 
         schema = ProductSchema(strict=True)
@@ -74,10 +85,17 @@ class GatewayService(object):
             json.dumps({'id': product_data['id']}), mimetype='application/json'
         )
 
+
+    @http("DELETE", "/orders/<int:order_id>", 		      	
+    	  expected_exceptions=OrderNotFound)
+    def delete_order(self, request, order_id):
+        order = self.orders_rpc.delete_order(order_id)
+        return Response(json.dumps({'id': "Order ID deleted"}), 
+        mimetype='application/json') 
+
     @http("GET", "/orders/<int:order_id>", expected_exceptions=OrderNotFound)
     def get_order(self, request, order_id):
         """Gets the order details for the order given by `order_id`.
-
         Enhances the order details with full product details from the
         products-service.
         """
@@ -115,9 +133,7 @@ class GatewayService(object):
     )
     def create_order(self, request):
         """Create a new order - order data is posted as json
-
         Example request ::
-
             {
                 "order_details": [
                     {
@@ -132,12 +148,8 @@ class GatewayService(object):
                     },
                 ]
             }
-
-
         The response contains the new order ID in a json document ::
-
             {"id": 1234}
-
         """
 
         schema = CreateOrderSchema(strict=True)

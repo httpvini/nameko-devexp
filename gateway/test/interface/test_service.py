@@ -14,10 +14,10 @@ class TestGetProduct(object):
             "passenger_capacity": 101,
             "title": "The Odyssey"
         }
-        response = web_session.get('/products/the_odyssey')
+        response = web_session.get('/products/the_odyssey2')
         assert response.status_code == 200
         assert gateway_service.products_rpc.get.call_args_list == [
-            call("the_odyssey")
+            call("the_odyssey2")
         ]
         assert response.json() == {
             "in_stock": 10,
@@ -26,6 +26,25 @@ class TestGetProduct(object):
             "passenger_capacity": 101,
             "title": "The Odyssey"
         }
+
+    def test_can_get_all_product(self, gateway_service, web_session):
+        gateway_service.products_rpc.get.return_value = {"the_odyssey": {"maximum_speed": 5, "id": "the_odyssey", "title": "The Odyssey", "in_stock": 10, "passenger_capacity": 101}, "the_odyssey2": {"maximum_speed": 5, "id": "the_odyssey2", "title": "The Odyssey", "in_stock": 10, "passenger_capacity": 101}}
+        response = web_session.get('/products/all')
+        assert response.status_code == 200
+        #assert gateway_service.products_rpc.get.call_args_list == [
+        #    call("all")
+        #]
+        assert response.json() == {"the_odyssey": {"maximum_speed": 5, "id": "the_odyssey", "title": "The Odyssey", "in_stock": 10, "passenger_capacity": 101}, "the_odyssey2": {"maximum_speed": 5, "id": "the_odyssey2", "title": "The Odyssey", "in_stock": 10, "passenger_capacity": 101}}
+
+    def test_delete_product(self, gateway_service, web_session):
+        #gateway_service.products_rpc.get.return_value = {"the_odyssey": {"maximum_speed": 5, "id": "the_odyssey", "title": "The Odyssey", "in_stock": 10, "passenger_capacity": 101}, "the_odyssey2": {"maximum_speed": 5, "id": "the_odyssey2", "title": "The Odyssey", "in_stock": 10, "passenger_capacity": 101}}
+        response = web_session.delete('/products/the_odyssey')
+        assert response.status_code == 200
+        #assert gateway_service.products_rpc.get.call_args_list == [
+        #    call("all")
+        #]
+        assert response.json() == {"res": "Product deleted"}
+
 
     def test_product_not_found(self, gateway_service, web_session):
         gateway_service.products_rpc.get.side_effect = (
@@ -176,6 +195,14 @@ class TestGetOrder(object):
         payload = response.json()
         assert payload['error'] == 'ORDER_NOT_FOUND'
         assert payload['message'] == 'missing'
+
+    def test_order_delete(self, gateway_service, web_session):
+        #gateway_service.orders_rpc.get_order.side_effect = (
+        #    OrderNotFound('missing'))
+
+        # call the gateway service to get order #1
+        response = web_session.delete('/orders/1')
+        assert response.status_code == 200
 
 
 class TestCreateOrder(object):
