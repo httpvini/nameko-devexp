@@ -5,7 +5,8 @@ dependencies:
 - python=3.7
 - pip==20.0.2
 - pip:
-    - nameko==v3.0.0-rc6
+    - dnspython==1.16.0
+    - nameko==v3.0.0-rc8
     - marshmallow==2.19.2
     - psycopg2-binary==2.8.2
     - nameko-sqlalchemy==1.5.0
