@@ -1,8 +1,8 @@
 name: namekocf
 channels:
-  - conda-forge
+- conda-forge
 dependencies:
-  - python=3.6
+  - python=3.8
   - pip==20.0.2
   - pip:
       - nameko==v3.0.0-rc6
@@ -11,3 +11,4 @@ dependencies:
       - nameko-sqlalchemy==1.5.0
       - alembic==1.0.10
       - redis==3.2.1
+

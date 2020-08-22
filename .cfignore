@@ -11,3 +11,4 @@ htmlcov
 stats.xml
 k8s/**
 devops/**
+**/*.pyc

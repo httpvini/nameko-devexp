@@ -26,7 +26,7 @@ fi
 # 1. Get App configuration via CF
 if [ "${LOCAL_DEV}" -ne 1 ]; then
     echo "Server Deployment"
-	STD_APP_URL="https://${PREFIX}"
+	STD_APP_URL="http://${PREFIX}"
 
 else
 	STD_APP_URL="http://localhost:8000"
@@ -41,14 +41,14 @@ curl -XPOST  "${STD_APP_URL}/products" \
 echo
 # Test: Get Product
 echo "=== Getting product id: the_odyssey ==="
-curl -s "${STD_APP_URL}/products/the_odyssey" | jq .
+curl -k -s "${STD_APP_URL}/products/the_odyssey" | jq .
 
 # Test: Create Order
 echo "=== Creating Order ==="
-ORDER_ID=$(curl -s -XPOST -d '{"order_details": [{"product_id": "the_odyssey", "price": "100000.99", "quantity": 1}]}' "${STD_APP_URL}/orders")
+ORDER_ID=$(curl -k -s -XPOST -d '{"order_details": [{"product_id": "the_odyssey", "price": "100000.99", "quantity": 1}]}' "${STD_APP_URL}/orders")
 echo ${ORDER_ID}
 ID=$(echo ${ORDER_ID} | jq '.id')
 
 # Test: Get Order back
 echo "=== Getting Order ==="
-curl -s "${STD_APP_URL}/orders/${ID}" | jq -r
+curl -k -s "${STD_APP_URL}/orders/${ID}" | jq -r
