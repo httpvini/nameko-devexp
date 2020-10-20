@@ -57,6 +57,9 @@ class StorageWrapper:
         return self.client.hincrby(
             self._format_key(product_id), 'in_stock', -amount)
 
+    # Increment the stock whenever the order is deleted
+    def increment_stock(self, product_id, stock_amount):
+        return self.client.hincrby(self._format_key(product_id), 'in_stock', stock_amount)
 
 class Storage(DependencyProvider):
 
