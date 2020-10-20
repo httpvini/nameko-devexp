@@ -35,3 +35,10 @@ class ProductsService:
         for product in payload['order']['order_details']:
             self.storage.decrement_stock(
                 product['product_id'], product['quantity'])
+            
+    # Event handler for incrementing the products whenever an order is deleted
+    @event_handler('orders', 'order_deleted')
+    def handle_order_deleted(self, payload):
+        print("payload: {}".format(payload))
+        for product in payload['order']['order_details']:
+            self.storage.increment_stock(product['product_id'], product['quantity'])
