@@ -125,9 +125,9 @@ pipeline {
 
             when {
                 anyOf {
-                        expression{ env.BRANCH_NAME =~ 'PR-' }
-                        branch 'performance'
-                        branch 'master'
+                    expression{ env.BRANCH_NAME =~ 'PR-' }
+                    branch 'performance'
+                    branch 'master'
                 }
             }
 
@@ -161,7 +161,26 @@ pipeline {
                             ./test/nex-smoketest.sh https://${PREFIX}.dev.kubecf.speedyorbit.com
                         '''
                     }
-                }                
+                }
+
+                stage('Perf Test') {
+
+                    when {
+                        anyOf {
+                            branch 'performance'
+                            branch 'master'
+                        }
+                    }
+
+                    steps {
+                        sh '''#!/bin/bash
+                            source activate nameko-devex
+                            echo "Start perftest ..."
+                            ./test/nex-bzt.sh https://${PREFIX}.dev.kubecf.speedyorbit.com
+                        '''
+                    }
+
+                }             
             }
         }
     }
