@@ -83,28 +83,42 @@ class GatewayService(object):
         """
         return Response(mimetype='application/json')
 
+    @http("GET", "/orders")
+    def list_orders(self, request):
+        """Gets list of orders.
+        """
+        order_list = self._get_order_list()
+        return Response(
+            GetOrderSchema(many=True).dumps(order_list).data,
+            mimetype='application/json'
+        )
+
     @http("GET", "/orders/<int:order_id>", expected_exceptions=OrderNotFound)
     def get_order(self, request, order_id):
         """Gets the order details for the order given by `order_id`.
-
-        Enhances the order details with full product details from the
-        products-service.
         """
-        order = self._get_order(order_id)
+        order = self._get_order_details(order_id)
         return Response(
             GetOrderSchema().dumps(order).data,
             mimetype='application/json'
         )
 
-    def _get_order(self, order_id):
+    def _get_order_list(self):
+        # Retrieve order list from the orders service.
+        order_list = self.orders_rpc.list_orders()
+        return [
+            self._get_order(o) for o in order_list
+        ]
+
+    def _get_order_details(self, order_id):
         # Retrieve order data from the orders service.
         # Note - this may raise a remote exception that has been mapped to
         # raise``OrderNotFound``
         order = self.orders_rpc.get_order(order_id)
 
-        # Retrieve all products from the products service
-        product_map = {prod['id']: prod for prod in self.products_rpc.list()}
+        return self._get_order(order)
 
+    def _get_order(self, order):
         # get the configured image root
         image_root = config['PRODUCT_IMAGE_ROOT']
 
@@ -112,7 +126,7 @@ class GatewayService(object):
         for item in order['order_details']:
             product_id = item['product_id']
 
-            item['product'] = product_map[product_id]
+            item['product'] = self.products_rpc.get(product_id)
             # Construct an image url.
             item['image'] = '{}/{}.jpg'.format(image_root, product_id)
 

@@ -14,6 +14,11 @@ class OrdersService:
     event_dispatcher = EventDispatcher()
 
     @rpc
+    def list_orders(self):
+        orders = self.db.query(Order).all()
+        return OrderSchema(many=True).dump(orders).data
+
+    @rpc
     def get_order(self, order_id):
         order = self.db.query(Order).get(order_id)
 
