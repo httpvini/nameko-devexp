@@ -18,7 +18,7 @@ if [ "${PREFIX}" != "local" ]; then
     STD_APP_URL=${PREFIX}
 else
     echo "Local Performance Test"
-    STD_APP_URL=http://localhost:8000
+    STD_APP_URL=http://localhost:8080
 fi
 
 if [ -z "$2" ]; then

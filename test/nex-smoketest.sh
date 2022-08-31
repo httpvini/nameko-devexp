@@ -22,7 +22,7 @@ if [ "${PREFIX}" != "local" ]; then
     STD_APP_URL=${PREFIX}
 else
     echo "Local Smoke Test"
-    STD_APP_URL=http://localhost:8000
+    STD_APP_URL=http://localhost:8080
 fi
 
 echo STD_APP_URL=${STD_APP_URL}

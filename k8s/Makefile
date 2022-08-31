@@ -13,11 +13,8 @@ kind-create-cluster:
 # src: https://kind.sigs.k8s.io/docs/user/ingress/
 kind-setup-ingress:
 	kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
-	sleep 5
-	kubectl wait --namespace ingress-nginx \
-		--for=condition=ready pod \
-		--selector=app.kubernetes.io/component=controller \
-		--timeout=90s
+	sleep 15
+	kubectl wait --namespace ingress-nginx --for=condition=ready pod --selector=app.kubernetes.io/component=controller --timeout=90s
 
 undeployK8:
 	# $(MAKE) delete-namespace
@@ -31,10 +28,10 @@ deployK8: kind-create-cluster kind-setup-ingress
 
 # test
 smoke-test:
-	../test/nex-smoketest.sh http://localhost
+	../test/nex-smoketest.sh local
 
 perf-test:
-	cd ..; ./test/nex-bzt.sh http://localhost
+	cd ..; ./test/nex-bzt.sh local 3 3m 1m
 
 # kubectl short-cuts
 get-nodes:
