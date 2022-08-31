@@ -1,3 +1,5 @@
+import json
+
 from nameko import config
 from nameko.extensions import DependencyProvider
 import redis
@@ -53,6 +55,18 @@ class StorageWrapper:
             self._format_key(product['id']),
             product)
 
+    def delete(self, product_id):
+        product = self.client.hgetall(self._format_key(product_id))
+        if not product:
+            raise NotFound('Product ID {} does not exist'.format(product_id))
+        else:
+            res = self.client.hdel(
+                str(self._format_key(product_id)),
+                *[k.decode('utf-8') for k in product.keys()]
+            )
+           
+            return {'id': res}
+
     def decrement_stock(self, product_id, amount):
         return self.client.hincrby(
             self._format_key(product_id), 'in_stock', -amount)
@@ -62,6 +76,7 @@ class Storage(DependencyProvider):
 
     def setup(self):
         self.client = redis.StrictRedis.from_url(config.get(REDIS_URI_KEY))
+        self.client.decode_responses = True
 
     def get_dependency(self, worker_ctx):
         return StorageWrapper(self.client)
