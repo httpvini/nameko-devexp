@@ -1,10 +1,11 @@
-version: "3.7"
+---
+version: '3.7'
 services:
   rabbit:
     container_name: ${PREFIX}-nameko-example-rabbitmq
     image: rabbitmq:3.7-management
-    # ports:              # Uncomment both lines if you want to debug
-    #     - "15673:15672" # Exposing RabbitMQ web management on different port for convenience
+    ports:
+      - '15672:15672'
     restart: unless-stopped
     healthcheck:
       # test: ["CMD-SHELL", "nc -z localhost 5672"]
@@ -16,12 +17,12 @@ services:
   postgres:
     container_name: ${PREFIX}-nameko-example-postgres
     image: postgres
-    # ports:            # Uncomment both lines if you want to debug
-    #     - "5433:5432" # Exposing Postgres on different port for convenience
+    ports:
+      - 5432:5432
     environment:
-        POSTGRES_DB: "orders"
-        POSTGRES_PASSWORD: "password"
-        POSTGRES_USER: "postgres"
+      POSTGRES_DB: orders
+      POSTGRES_PASSWORD: password
+      POSTGRES_USER: postgres
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
@@ -32,8 +33,8 @@ services:
   redis:
     container_name: ${PREFIX}-nameko-example-redis
     image: redis
-    # ports:            # Uncomment both lines if you want to debug
-    #     - "6380:6379" # Exposing Redis on different port for convenience
+    ports:
+      - '6379:6379'
     command: [
       "bash", "-c",
       '
@@ -52,63 +53,57 @@ services:
     container_name: ${PREFIX}-nameko-example-orders
     image: nameko/nameko-example-orders:${TAG}
     depends_on:
-      rabbit:
-        condition: service_healthy
-      postgres:
-        condition: service_healthy
+      - rabbit
+      - postgres
     ports:
-        - "8001:8000"
+      - '8001:8000'
     links:
-        - "rabbit:nameko-example-rabbitmq"
-        - "postgres:nameko-example-postgres"
+      - rabbit:nameko-example-rabbitmq
+      - postgres:nameko-example-postgres
     environment:
-        DB_PASSWORD: "password"
-        DB_USER: "postgres"
-        DB_HOST: "postgres"
-        DB_NAME: "orders"
-        RABBIT_PASSWORD: "guest"
-        RABBIT_USER: "guest"
-        RABBIT_HOST: "rabbit"
-        RABBIT_PORT: "5672"
-        RABBIT_MANAGEMENT_PORT: "15672"
+      DB_PASSWORD: password
+      DB_USER: postgres
+      DB_HOST: postgres
+      DB_NAME: orders
+      RABBIT_PASSWORD: guest
+      RABBIT_USER: guest
+      RABBIT_HOST: rabbit
+      RABBIT_PORT: '5672'
+      RABBIT_MANAGEMENT_PORT: '15672'
 
   products:
     container_name: ${PREFIX}-nameko-example-products
     image: nameko/nameko-example-products:${TAG}
     depends_on:
-      rabbit:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
+      - rabbit
+      - redis
     ports:
-        - "8002:8000"
+      - '8002:8000'
     links:
-        - "rabbit:nameko-example-rabbitmq"
-        - "redis:nameko-example-redis"
+      - 'rabbit:nameko-example-rabbitmq'
+      - 'redis:nameko-example-redis'
     environment:
-        REDIS_HOST: "redis"
-        REDIS_PORT: "6379"
-        REDIS_INDEX: "11"
-        REDIS_PASSWORD: "password"
-        RABBIT_PASSWORD: "guest"
-        RABBIT_USER: "guest"
-        RABBIT_HOST: "rabbit"
-        RABBIT_PORT: "5672"
-        RABBIT_MANAGEMENT_PORT: "15672"
-
+      REDIS_HOST: redis
+      REDIS_PORT: '6379'
+      REDIS_INDEX: '11'
+      REDIS_PASSWORD: password
+      RABBIT_PASSWORD: guest
+      RABBIT_USER: guest
+      RABBIT_HOST: rabbit
+      RABBIT_PORT: '5672'
+      RABBIT_MANAGEMENT_PORT: '15672'
   gateway:
     container_name: ${PREFIX}-nameko-example-gateway
     image: nameko/nameko-example-gateway:${TAG}
     depends_on:
-      rabbit:
-        condition: service_healthy
+      - rabbit
     ports:
-        - "8003:8000"
+      - '8003:8000'
     links:
-        - "rabbit:nameko-example-rabbitmq"
+      - 'rabbit:nameko-example-rabbitmq'
     environment:
-        RABBIT_PASSWORD: "guest"
-        RABBIT_USER: "guest"
-        RABBIT_HOST: "rabbit"
-        RABBIT_PORT: "5672"
-        RABBIT_MANAGEMENT_PORT: "15672"
+      RABBIT_PASSWORD: guest
+      RABBIT_USER: guest
+      RABBIT_HOST: rabbit
+      RABBIT_PORT: '5672'
+      RABBIT_MANAGEMENT_PORT: '15672'
