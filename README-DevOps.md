@@ -34,7 +34,7 @@ make deployK8
 
 Please read the [Makefile](k8s/Makefile) for more details on the commands
 
-## Minikube
+## Minikube and Epinio
 
 To start a new Minikube local cluster, you will need to follow the
 [official documentation](https://k8s-docs.netlify.app/en/docs/tasks/tools/install-minikube/)
@@ -42,6 +42,8 @@ To start a new Minikube local cluster, you will need to follow the
 Then, change to `minikube` subdirectory in this repository and execute
 `make cluster`. That will create a new cluster with the configurations expected
 by Epinio.
+
+See also the `epinio/README.md` file for more information.
 
 ## Cloudfoundry
 ### Prerequisites deployment to CloudFoundry
