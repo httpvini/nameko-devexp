@@ -3,7 +3,7 @@
 
 ## Docker
 ### Prerequisites deployment to Docker
-* [Docker](https://docs.docker.com/get-docker/). 
+* [Docker](https://docs.docker.com/get-docker/).
 * Docker cli is working. eg: `docker-compose` - [Install instructions](https://docs.docker.com/compose/install/)
 
 ### Setup
@@ -11,7 +11,7 @@
 ```sh
 make deploy-docker
 ```
-* Smoketest your landscape via `make smoke-test`, make sure you are in your _namekoexample_ conda environment 
+* Smoketest your landscape via `make smoke-test`, make sure you are in your _namekoexample_ conda environment
 * You could also performance test your landscape via `make perf-test`
 * To undeploy/stop, Control-C above process
 
@@ -28,12 +28,20 @@ Please read the [Makefile](Makefile) for more details on the commands
 cd k8s
 make deployK8
 ```
-* Smoketest your landscape via `make smoke-test`, make sure you are in your _namekoexample_ conda environment 
+* Smoketest your landscape via `make smoke-test`, make sure you are in your _namekoexample_ conda environment
 * You could also performance test your landscape via `make perf-test`
 * To undeploy, use `make undeployK8`
 
 Please read the [Makefile](k8s/Makefile) for more details on the commands
 
+## Minikube
+
+To start a new Minikube local cluster, you will need to follow the
+[official documentation](https://k8s-docs.netlify.app/en/docs/tasks/tools/install-minikube/)
+
+Then, change to `minikube` subdirectory in this repository and execute
+`make cluster`. That will create a new cluster with the configurations expected
+by Epinio.
 
 ## Cloudfoundry
 ### Prerequisites deployment to CloudFoundry
@@ -80,7 +88,7 @@ If prefix is `demo`, the above command will:
 - Note: We can use `manifest.yml` for deployment without above step assuming the backing service is create prior
   * URL: `demo.<CF_DOMAIN>`
 
-For multiple app deployment, uncomment appropriately in `manifest.yml` 
+For multiple app deployment, uncomment appropriately in `manifest.yml`
 
 * Undeploy apps from CF
 ```ssh
