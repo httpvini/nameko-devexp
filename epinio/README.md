@@ -5,7 +5,9 @@
 This setup was validated on Ubuntu Linux 18.04 LTS. It might work on different
 Linux distributions.
 
-## "Magic" DNS setup
+## How to
+
+### "Magic" DNS setup
 
 Per [Epinio documentation](https://docs.epinio.io/installation/magicDNS_setup),
 the easiest to configure Epinio "domain name" is to use a external DNS like
@@ -31,6 +33,19 @@ Where:
 
 See the `dnsmasq.conf` file for more details.
 
+### Installing Epinio
+
+Epinio is installed using Helm.
+
+Please refer to the `Makefile` following targets:
+
+- install: installs Epinio
+- upgrade: upgrades Epinio (due changes to the `values.yaml` file)
+- uninstall: completely removes Epinio
+- status: list the Epinio chart status
+
+Also refer to the `values.yaml` for the available customization and values.
+
 ## Access to Epinio UI
 
 You should be able to open the UI in a browser by accessing:
@@ -45,7 +60,7 @@ The default credentials will be:
 - user: *admin*
 - password: *password*
 
-## Know issues
+## Known issues
 
 Currently, not even the
 [example application](https://docs.epinio.io/tutorials/single-dev-workflow) can
@@ -107,12 +122,14 @@ credentials.
 An attempt to manually download the image was then executed:
 
 ```
-$ docker image ls | grep paketo
-paketobuildpacks/builder                  full               9cefe3e0640a   42 years ago    1.98GB
+$ docker image ls
+REPOSITORY                    TAG       IMAGE ID       CREATED        SIZE
+gcr.io/k8s-minikube/kicbase   v0.0.33   b7ab23e98277   6 weeks ago    1.14GB
+paketobuildpacks/builder      full      9cefe3e0640a   42 years ago   1.98GB
 ```
 
-The Docker image is quite large, but that doesn't explain the error. The image,
-on the other hand, doesn't look well.
+The Docker image is quite large, but that doesn't explain the error. The image
+age, on the other hand, is obviously wrong for some reason.
 
 As an additional step, it was attempt to push this same image do the internal
 registry:
@@ -163,7 +180,7 @@ paketo   0/1     ImagePullBackOff    0          2m15s
 ```
 
 On the other hand, executing the image outside the Minikube environment worked
-as expected:
+at list for this simple test:
 
 ```
 $ docker container run --rm -ti paketobuildpacks/builder:full ls -l /
@@ -200,6 +217,5 @@ logs until the error from the Pod.
 ## References
 
 - [Epinio on Minikube](https://docs.epinio.io/howtos/install_epinio_on_minikube)
-- [Minio official Docker registry](https://quay.io/repository/minio/minio?tab=tags)
 - [Minikube with metalb addon](https://medium.com/@emirmujic/istio-and-metallb-on-minikube-242281b1134b)
 - ["Magic" DNS SSLIP](https://sslip.io/)
