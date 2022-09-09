@@ -3,13 +3,13 @@
 ## Airship Ltd
 Buying and selling quality airships since 2012
 
-
 ## Prerequisites of setting up Development Environment
 
 * [VSCode as IDE](https://code.visualstudio.com/download)
 * [Docker](https://www.docker.com/)
 * [Brew for OSX/Linux](https://brew.sh/)
 * [Miniconda](https://docs.conda.io/en/latest/miniconda.html)
+* Python version 3.7.x
 
 ## Setup
 
@@ -51,7 +51,7 @@ $ conda deactivate nameko-devex
 
 * Quick `Smoke Test` to ensure the setup is working properly
 ```ssh
-(nameko-devex) ./test/nex-smoketest.sh local 
+(nameko-devex) ./test/nex-smoketest.sh local
 
 # Example output:
 Local Development
