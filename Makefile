@@ -28,8 +28,22 @@ coverage-html:
 coverage-report:
 	coverage report -m
 
-test:
+lint:
 	flake8 orders products gateway
+
+test-reqs:
+	@echo 'Starting the RabbitMQ, PostgreSQL and Redis containers...'
+	@export PREFIX=${PREFIX}; export TAG=$(TAG); docker-compose up -d rabbit
+	@export PREFIX=${PREFIX}; export TAG=$(TAG); docker-compose up -d postgres
+	@export PREFIX=${PREFIX}; export TAG=$(TAG); docker-compose up -d redis
+	@echo 'Done!'
+
+test: lint
+	pytest -v gateway/test
+	pytest -v orders/test
+	pytest -v products/test
+
+test-coverage:
 	coverage run -m pytest gateway/test $(ARGS)
 	coverage run --append -m pytest orders/test $(ARGS)
 	coverage run --append -m pytest products/test $(ARGS)
