@@ -10,6 +10,8 @@ Buying and selling quality airships since 2012
 * [Python 3](https://www.python.org/downloads/)
 * [Docker](https://www.docker.com/)
 * [Docker Compose](https://docs.docker.com/compose/)
+* [Helm](https://helm.sh/) version v3.9.4 or higher
+* GNU Make
 
 ## Overview
 
