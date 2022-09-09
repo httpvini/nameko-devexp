@@ -1,3 +1,5 @@
+.PHONY: test
+
 PREFIX ?= localdev
 HTMLCOV_DIR ?= htmlcov
 TAG ?= dev
