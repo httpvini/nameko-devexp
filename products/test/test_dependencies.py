@@ -64,8 +64,8 @@ def test_decrement_stock(storage, create_product, redis_client):
     assert b'12' == product_three[b'in_stock']
 
 
-def test_delete(storage: StorageWrapper, products, product):
+def test_destroy(storage: StorageWrapper, products, product):
     product_id = product['id']
-    assert storage.delete(product_id) == 1
+    assert storage.destroy(product_id) == 1
     valid_ids = map(lambda p: p['id'], storage.list())
     assert product_id not in valid_ids
