@@ -15,21 +15,21 @@ def service_container(test_config, container_factory):
     return container
 
 
-# def test_get_product(create_product, service_container):
+def test_get_product(create_product, service_container):
 
-#     stored_product = create_product()
+    stored_product = create_product()
 
-#     with entrypoint_hook(service_container, 'get') as get:
-#         loaded_product = get(stored_product['id'])
+    with entrypoint_hook(service_container, 'get') as get:
+        loaded_product = get(stored_product['id'])
 
-#     assert stored_product == loaded_product
+    assert stored_product == loaded_product
 
 
-# def test_get_product_fails_on_not_found(service_container):
+def test_get_product_fails_on_not_found(service_container):
 
-#     with pytest.raises(NotFound):
-#         with entrypoint_hook(service_container, 'get') as get:
-#             get(111)
+    with pytest.raises(NotFound):
+        with entrypoint_hook(service_container, 'get') as get:
+            get(111)
 
 
 def test_list_products(products, service_container):

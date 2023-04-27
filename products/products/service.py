@@ -15,10 +15,10 @@ class ProductsService:
 
     storage = dependencies.Storage()
 
-    # @rpc
-    # def get(self, product_id):
-    #     product = self.storage.get(product_id)
-    #     return schemas.Product().dump(product).data
+    @rpc
+    def get(self, product_id):
+        product = self.storage.get(product_id)
+        return schemas.Product().dump(product).data
 
     @rpc
     def list(self):
@@ -35,3 +35,8 @@ class ProductsService:
         for product in payload['order']['order_details']:
             self.storage.decrement_stock(
                 product['product_id'], product['quantity'])
+
+    @rpc
+    def delete_product(self, product_id):
+        product = self.storage.get(product_id)
+        self.storage.delete(product)
