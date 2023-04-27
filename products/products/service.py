@@ -15,10 +15,10 @@ class ProductsService:
 
     storage = dependencies.Storage()
 
-    @rpc
-    def get(self, product_id):
-        product = self.storage.get(product_id)
-        return schemas.Product().dump(product).data
+    # @rpc
+    # def get(self, product_id):
+    #     product = self.storage.get(product_id)
+    #     return schemas.Product().dump(product).data
 
     @rpc
     def list(self):
