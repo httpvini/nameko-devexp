@@ -39,4 +39,7 @@ class ProductsService:
     @rpc
     def delete_product(self, product_id):
         product = self.storage.get(product_id)
-        self.storage.delete(product)
+        if product :
+            self.storage.delete(product_id)
+        else :
+            raise TypeError('sorry, this product does not exist')
