@@ -43,3 +43,17 @@ class ProductsService:
             self.storage.delete(product_id)
         else :
             raise TypeError('sorry, this product does not exist')
+        
+    @rpc
+    def add_unit_product(self, product_id, amount):
+        product = self.storage.get(product_id)
+        if product :
+            self.storage.increment_stock(product_id, amount)
+        else :
+            raise TypeError('sorry, this product does not exist')
+        
+    @event_handler('orders', 'order_created')
+    def handle_order_canceled(self, payload):
+        for product in payload['order']['order_details']:
+            self.storage.increment_stock(
+                product['product_id'], product['quantity'])
