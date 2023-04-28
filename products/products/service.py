@@ -52,8 +52,8 @@ class ProductsService:
         else :
             raise TypeError('sorry, this product does not exist')
         
-    @event_handler('orders', 'order_created')
-    def handle_order_canceled(self, payload):
-        for product in payload['order']['order_details']:
-            self.storage.increment_stock(
-                product['product_id'], product['quantity'])
+    # @event_handler('orders', 'order_created')
+    # def handle_order_canceled(self, payload):
+    #     for product in payload['order']['order_details']:
+    #         self.storage.increment_stock(
+    #             product['product_id'], product['quantity'])

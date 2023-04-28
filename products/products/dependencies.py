@@ -65,8 +65,6 @@ class StorageWrapper:
             self._format_key(product_id), 'in_stock', amount)
         
 
-        
-
 
 class Storage(DependencyProvider):
 

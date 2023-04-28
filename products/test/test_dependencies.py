@@ -76,3 +76,18 @@ def test_delete_product(storage, create_product):
         storage.get(5)
     assert 'Product ID 5 does not exist' == exc.value.args[0]
 
+def test_increment_stock(storage, create_product, redis_client):
+    create_product(id=6, title='LZ 127', in_stock=10)
+    create_product(id=7, title='LZ 129', in_stock=11)
+    create_product(id=8, title='LZ 130', in_stock=12)
+
+    in_stock = storage.increment_stock(7, 4)
+
+    assert 15 == in_stock
+    product_1, product_2, product_3 = [
+        redis_client.hgetall('products:{}'.format(id_))
+        for id_ in (6, 7, 8)]
+    assert b'10' == product_1[b'in_stock']
+    assert b'15' == product_2[b'in_stock']
+    assert b'12' == product_3[b'in_stock']
+
