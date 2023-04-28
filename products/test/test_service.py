@@ -167,4 +167,22 @@ def test_delete_product(create_product, service_container):
     with pytest.raises(NotFound):
             with entrypoint_hook(service_container, 'get') as get:
                 get(stored_product['id'])
-        
+
+
+def test_add_unit_product(create_product, service_container):
+
+    create_product(id=10, title='LZ 10', in_stock=5)
+
+    with entrypoint_hook(service_container, 'add_unit_product') as add:
+        add('10', 2)
+
+    with entrypoint_hook(service_container, 'get') as get:
+        product_test = get(10)
+    
+    assert product_test['in_stock'] == 7
+
+def test_add_unit_product_not_found(service_container):
+
+    with pytest.raises(NotFound):
+            with entrypoint_hook(service_container, 'add_unit_product') as add:
+                add('555', 2)
