@@ -36,6 +36,8 @@ class ProductsService:
             self.storage.decrement_stock(
                 product['product_id'], product['quantity'])
 
+# ----------------------------zenha ---------------------------------------------
+
     @rpc
     def delete_product(self, product_id):
         product = self.storage.get(product_id)

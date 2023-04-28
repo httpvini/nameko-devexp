@@ -33,6 +33,13 @@ curl -s -XPOST  "${STD_APP_URL}/products" \
     -H 'accept: application/json' \
     -H 'Content-Type: application/json' \
     -d '{"id": "the_odyssey", "title": "The Odyssey", "passenger_capacity": 101, "maximum_speed": 5, "in_stock": 10}'
+
+echo "=== Creating a product id: my_product ==="
+curl -s -XPOST  "${STD_APP_URL}/products" \
+    -H 'accept: application/json' \
+    -H 'Content-Type: application/json' \
+    -d '{"id": "my_product", "title": "My PRODUCT", "passenger_capacity": 101, "maximum_speed": 5, "in_stock": 20}'
+    
 echo
 # Test: Get Product
 echo "=== Getting product id: the_odyssey ==="
@@ -52,3 +59,14 @@ ID=$(echo ${ORDER_ID} | jq '.id')
 # Test: Get Order back
 echo "=== Getting Order ==="
 curl -s "${STD_APP_URL}/orders/${ID}" | jq .
+
+# Test: Delete Product  
+
+echo "=== Testing if the product id: my_product exist ==="
+curl -s "${STD_APP_URL}/products/my_product" | jq .
+
+echo "=== Deleting product id: my_product ==="
+curl -s -X DELETE "${STD_APP_URL}/products/my_product" | jq .
+
+echo "=== Testing if the product was deleted. It should show not found ==="
+curl -s "${STD_APP_URL}/products/my_product" | jq .
