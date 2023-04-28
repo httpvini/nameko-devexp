@@ -94,3 +94,16 @@ def test_can_update_order(orders_rpc, order):
 def test_can_delete_order(orders_rpc, order, db_session):
     orders_rpc.delete_order(order.id)
     assert not db_session.query(Order).filter_by(id=order.id).count()
+
+# ---------------------------------zenha-----------------------
+
+@pytest.mark.usefixtures('db_session', 'order_details')
+def test_list_orders(orders_rpc):
+
+    order_in_bd = {'id': 1, 'order_details': [{'id': 1, 'price': '99.51', 'product_id': 'the_odyssey', 'quantity': 1}, {'id': 2, 'price': '30.99', 'product_id': 'the_enigma', 'quantity': 8}]}
+    
+    result_test = orders_rpc.list_orders()
+
+    array = [order_in_bd]
+    
+    assert result_test == array
