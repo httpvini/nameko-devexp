@@ -22,3 +22,6 @@ class CreateOrderSuccess(BaseModel):
 
 class CreateProductSuccess(BaseModel):
     id: str
+
+class DeleteProduct(BaseModel):
+    None

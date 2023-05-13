@@ -104,11 +104,28 @@ scenarios:
       extract-jsonpath:
         order_id: $.id
         default: NOT_FOUND
-        
+
     - if: '"${order_id}" == "NOT_FOUND"'
       then:
         - action: continue
-  
+
+    # 5. delete Product
+    # TODO: this test causes failures on other tests, find a way to only delete
+    # products that won't be used in other tests to prevent that
+    - url: /products/${product_id}
+      label: product-delete
+      think-time: uniform(0s, 0s)
+      method: DELETE
+
+      assert:
+      - contains:
+        - 200
+        subject: http-code
+        not: false
+      extract-jsonpath:
+        product_key: $.id
+        default: NOT_FOUND
+
 reporting:
 - module: final-stats
   dump-xml: stats.xml

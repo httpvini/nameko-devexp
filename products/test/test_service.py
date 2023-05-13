@@ -62,6 +62,26 @@ def test_create_product(product, redis_client, service_container):
         int(stored_product[b'passenger_capacity']))
     assert product['in_stock'] == int(stored_product[b'in_stock'])
 
+def test_delete_product(create_product, redis_client, service_container):
+
+    stored_product_id = create_product()['id']
+
+    with entrypoint_hook(service_container, 'delete') as delete:
+        delete(stored_product_id)
+        loaded_products = redis_client.hgetall(f'products:{stored_product_id}')
+
+    assert loaded_products == {}
+
+def test_delete_product_does_nothing_on_not_found(redis_client, service_container):
+
+    stored_products = redis_client.hgetall('products:111')
+
+    with entrypoint_hook(service_container, 'delete') as delete:
+        delete(111)
+        loaded_products = redis_client.hgetall('products:111')
+
+    assert stored_products == {}
+    assert loaded_products == stored_products
 
 @pytest.mark.parametrize('product_overrides, expected_errors', [
     ({'id': 111}, {'id': ['Not a valid string.']}),
