@@ -138,6 +138,30 @@ scenarios:
         subject: http-code
         not: false
 
+    # 7. List Orders custom limit
+    - url: /orders?limit=2
+      label: orders-list-custom-limit
+      think-time: uniform(0s, 0s)
+      method: GET
+
+      assert:
+      - contains:
+        - 200
+        subject: http-code
+        not: false
+
+    # 8. List Orders custom limit above allowed
+    - url: /orders?limit=2000
+      label: orders-list-above-max
+      think-time: uniform(0s, 0s)
+      method: GET
+
+      assert:
+      - contains:
+        - 200
+        subject: http-code
+        not: false
+
 reporting:
 - module: final-stats
   dump-xml: stats.xml
