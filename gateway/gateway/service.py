@@ -116,8 +116,11 @@ class GatewayService(object):
         # raise``OrderNotFound``
         order = self.orders_rpc.get_order(order_id)
 
-        # Retrieve all products from the products service
-        product_map = {prod['id']: prod for prod in self.products_rpc.list()}
+        # list of product ids in the order
+        product_ids = self._product_ids(order)
+
+        # Retrieve all products in the order from the products service
+        product_map = {prod['id']: prod for prod in self.products_rpc.list(product_ids)}
 
         # get the configured image root
         image_root = config['PRODUCT_IMAGE_ROOT']
@@ -179,6 +182,9 @@ class GatewayService(object):
         return Response(json.dumps({'id': id_}), mimetype='application/json')
 
     def _create_order(self, order_data):
+        # list of product ids in the order
+        product_ids = self._product_ids(order_data)
+
         # check order product ids are valid
         valid_product_ids = {prod['id'] for prod in self.products_rpc.list()}
         for item in order_data['order_details']:
@@ -195,3 +201,6 @@ class GatewayService(object):
             serialized_data['order_details']
         )
         return result['id']
+
+    def _product_ids(self, order):
+        return [*map(lambda product: product['product_id'], order['order_details'])]

@@ -29,10 +29,14 @@ def test_get(storage, products):
 
 
 def test_list(storage, products):
-    listed_products = storage.list()
+    listed_products = storage.list([])
     assert (
         products == sorted(list(listed_products), key=lambda x: x['id']))
 
+def test_list_single_id(storage, products):
+    listed_products = storage.list([products[0]['id']])
+    assert (
+        [products[0]] == sorted(list(listed_products), key=lambda x: x['id']))
 
 def test_create(product, redis_client, storage):
 

@@ -43,8 +43,14 @@ class StorageWrapper:
         else:
             return self._from_hash(product)
 
-    def list(self):
-        keys = self.client.keys(self._format_key('*'))
+    def list(self, filter_keys = []):
+        # preserve original functionality if no params were passed
+        # or an empty id list is received as filter
+        if filter_keys == []:
+            keys = self.client.keys(self._format_key('*'))
+        else:
+            keys = [*map(lambda key: self._format_key(key), filter_keys)]
+
         for key in keys:
             yield self._from_hash(self.client.hgetall(key))
 
