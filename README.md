@@ -116,3 +116,30 @@ Ensure RabbitMQ, PostgreSQL and Redis are running and `config.yaml` files for ea
 ## Debug / Project setup for repo
 
 Please refer to [README-DevEnv.md](README-DevEnv.md)
+
+# Questions and Answers
+
+## 1.  Why is performance degrading as the test run longer?
+as the products database grows creating and fetching orders becomes more and
+more taxing on the system because both operations are fetching all products with
+no filter to get data only on the products included in any given order
+
+another factor that was degrading the performance was the lack of a limit in the
+orders list query but that wasn't an issue in the original state of the project
+and instead was a problem accidentally introduced by my changes
+
+## 2. How do you fix it?
+update the product list rpc to accept a list of ids and maybe other filter
+parameters too and make sure creating and fetching specific orders only request
+the products needed for the operation
+
+add a default limit to the orders query to prevent it from pulling too many orders
+also adding a max limit so users can't request too many and damage the overall
+system performance
+
+to further improve performance we could have in memory a list of products that
+aren't available anymore(no stock or deleted) for a few minutes up to a day to
+pre-reject orders that request those products that we know aren't available
+anymore from a recent change that may not have reflected on whatever a user would
+have to place orders(a website or an app or something similar)
+
