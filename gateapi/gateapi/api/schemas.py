@@ -23,5 +23,12 @@ class CreateOrderSuccess(BaseModel):
 class CreateProductSuccess(BaseModel):
     id: str
 
+class Order(BaseModel):
+    id: str
+    order_details: List[CreateOrderDetail]
+
+class OrderList(BaseModel):
+    __root__: List[Order]
+
 class DeleteProduct(BaseModel):
     None

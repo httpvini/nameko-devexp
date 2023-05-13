@@ -29,6 +29,12 @@ def order_details(db_session, order):
     return order_details
 
 
+def test_list_orders(orders_rpc, order):
+    response = orders_rpc.list_orders()
+    print(response)
+    assert [1] == [*map(lambda order: order['id'], response)]
+
+
 def test_get_order(orders_rpc, order):
     response = orders_rpc.get_order(1)
     assert response['id'] == order.id

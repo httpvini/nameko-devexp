@@ -11,6 +11,12 @@ router = APIRouter(
     tags = ['Orders']
 )
 
+@router.get("", status_code=status.HTTP_200_OK, response_model=schemas.OrderList)
+def get_product(product_id: str, rpc = Depends(get_rpc)):
+    with rpc.next() as nameko:
+        return nameko.orders.list()
+
+
 @router.get("/{order_id}", status_code=status.HTTP_200_OK)
 def get_order(order_id: int, rpc = Depends(get_rpc)):
     try:
