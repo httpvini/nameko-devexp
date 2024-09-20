@@ -11,6 +11,22 @@ router = APIRouter(
     tags = ['Orders']
 )
 
+@router.get("", status_code=status.HTTP_200_OK, response_model=List[schemas.Order])
+def list_orders(rpc=Depends(get_rpc)):
+    try:
+        return _list_orders(rpc)
+    except Exception as error:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(error)
+        )
+
+def _list_orders(nameko_rpc):
+    with nameko_rpc.next() as nameko:
+        orders = nameko.orders.list_orders()
+
+    return orders
+
 @router.get("/{order_id}", status_code=status.HTTP_200_OK)
 def get_order(order_id: int, rpc = Depends(get_rpc)):
     try:
