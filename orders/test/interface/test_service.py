@@ -28,6 +28,22 @@ def order_details(db_session, order):
     db_session.commit()
     return order_details
 
+@pytest.fixture
+def orders(db_session):
+    order1 = Order()
+    order2 = Order()
+    db_session.add_all([order1, order2])
+    db_session.commit()
+    return [order1, order2]
+
+@pytest.mark.usefixtures('db_session', 'orders')
+def test_can_list_orders(orders_rpc, orders):
+    response = orders_rpc.list_orders()
+    assert len(response) == len(orders)
+
+    response_ids = [order['id'] for order in response]
+    assert response_ids == [order.id for order in orders]
+
 
 def test_get_order(orders_rpc, order):
     response = orders_rpc.get_order(1)

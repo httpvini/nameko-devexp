@@ -22,3 +22,12 @@ class CreateOrderSuccess(BaseModel):
 
 class CreateProductSuccess(BaseModel):
     id: str
+    
+class OrderDetail(BaseModel):
+    product_id: str
+    price: float
+    quantity: int
+
+class Order(BaseModel):
+    id: str
+    order_details: List[OrderDetail]

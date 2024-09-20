@@ -62,3 +62,22 @@ def test_decrement_stock(storage, create_product, redis_client):
     assert b'10' == product_one[b'in_stock']
     assert b'7' == product_two[b'in_stock']
     assert b'12' == product_three[b'in_stock']
+
+def test_delete_product(storage, create_product, redis_client):
+    create_product(id='LZ127', title='LZ 127', in_stock=10)
+    create_product(id='LZ129', title='LZ 129', in_stock=11)
+    create_product(id='LZ130', title='LZ 130', in_stock=12)
+
+    storage.delete('LZ129')
+
+    with pytest.raises(storage.NotFound):
+        storage.get('LZ129')
+
+    product_one = redis_client.hgetall('products:LZ127')
+    product_three = redis_client.hgetall('products:LZ130')
+
+    assert b'LZ127' == product_one[b'id']
+    assert b'LZ130' == product_three[b'id']
+
+    deleted_product = redis_client.hgetall('products:LZ129')
+    assert deleted_product == {}
