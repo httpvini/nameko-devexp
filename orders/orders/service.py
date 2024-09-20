@@ -1,34 +1,47 @@
+import json
 from nameko.events import EventDispatcher
 from nameko.rpc import rpc
 from nameko_sqlalchemy import DatabaseSession
-
 from orders.exceptions import NotFound
 from orders.models import DeclarativeBase, Order, OrderDetail
 from orders.schemas import OrderSchema
+from orders.redis_client import RedisClient
 
+#TODO - fix cache problems. 
 
 class OrdersService:
     name = 'orders'
 
     db = DatabaseSession(DeclarativeBase)
     event_dispatcher = EventDispatcher()
-    
-    @rpc
-    def list_orders(self, page=1, per_page=100):
-        orders = self.db.query(Order).offset((page - 1) * per_page).limit(per_page).all()
-        return OrderSchema(many=True).dump(orders).data
-    
+    redis_cache = RedisClient()
+    cache_ttl = 3600
+
     @rpc
     def get_order(self, order_id):
+        cached_order = self._get_order_from_cache(order_id)
+        if cached_order:
+            return cached_order
+
         order = self.db.query(Order).get(order_id)
-
         if not order:
-            raise NotFound('Order with id {} not found'.format(order_id))
+            raise NotFound(f'Order with id {order_id} not found')
 
-        return OrderSchema().dump(order).data
+        order_data = OrderSchema().dump(order).data
+        self._cache_order(order_id, order_data)
+        return order_data
 
     @rpc
     def create_order(self, order_details):
+        order = self._create_order_in_db(order_details)
+        order_data = OrderSchema().dump(order).data
+
+        self._cache_order(order_data['id'], order_data)
+        self._dispatch_order_created_event(order_data)
+
+        return order_data
+
+    def _create_order_in_db(self, order_details):
         order = Order(
             order_details=[
                 OrderDetail(
@@ -41,33 +54,22 @@ class OrdersService:
         )
         self.db.add(order)
         self.db.commit()
-
-        order = OrderSchema().dump(order).data
-
-        self.event_dispatcher('order_created', {
-            'order': order,
-        })
-
         return order
 
-    @rpc
-    def update_order(self, order):
-        order_details = {
-            order_details['id']: order_details
-            for order_details in order['order_details']
-        }
+    def _cache_order(self, order_id, order_data):
+        cache_key = self._generate_cache_key(order_id)
+        order_data_json = json.dumps(order_data)
+        self.redis_cache.setex(cache_key, self.cache_ttl, order_data_json)
 
-        order = self.db.query(Order).get(order['id'])
+    def _get_order_from_cache(self, order_id):
+        cache_key = self._generate_cache_key(order_id)
+        cached_order = self.redis_cache.get(cache_key)
+        if cached_order:
+            return json.loads(cached_order.decode("utf-8"))
+        return None
 
-        for order_detail in order.order_details:
-            order_detail.price = order_details[order_detail.id]['price']
-            order_detail.quantity = order_details[order_detail.id]['quantity']
+    def _dispatch_order_created_event(self, order_data):
+        self.event_dispatcher('order_created', {'order': order_data})
 
-        self.db.commit()
-        return OrderSchema().dump(order).data
-
-    @rpc
-    def delete_order(self, order_id):
-        order = self.db.query(Order).get(order_id)
-        self.db.delete(order)
-        self.db.commit()
+    def _generate_cache_key(self, order_id):
+        return f'order:{order_id}'

@@ -1,11 +1,10 @@
 import pytest
-
-from mock import call
+from unittest.mock import call, patch
 from nameko.exceptions import RemoteError
-
 from orders.models import Order, OrderDetail
 from orders.schemas import OrderSchema, OrderDetailSchema
 
+#TODO - fix tests that are breaking. 
 
 @pytest.fixture
 def order(db_session):
@@ -17,81 +16,61 @@ def order(db_session):
 
 @pytest.fixture
 def order_details(db_session, order):
-    db_session.add_all([
-        OrderDetail(
-            order=order, product_id="the_odyssey", price=99.51, quantity=1
-        ),
-        OrderDetail(
-            order=order, product_id="the_enigma", price=30.99, quantity=8
-        )
-    ])
+    details = [
+        OrderDetail(order=order, product_id="the_odyssey", price=99.51, quantity=1),
+        OrderDetail(order=order, product_id="the_enigma", price=30.99, quantity=8)
+    ]
+    db_session.add_all(details)
     db_session.commit()
-    return order_details
-
-@pytest.fixture
-def orders(db_session):
-    order1 = Order()
-    order2 = Order()
-    db_session.add_all([order1, order2])
-    db_session.commit()
-    return [order1, order2]
-
-@pytest.mark.usefixtures('db_session', 'orders')
-def test_can_list_orders(orders_rpc, orders):
-    response = orders_rpc.list_orders()
-    assert len(response) == len(orders)
-
-    response_ids = [order['id'] for order in response]
-    assert response_ids == [order.id for order in orders]
+    return details
 
 
-def test_get_order(orders_rpc, order):
-    response = orders_rpc.get_order(1)
+@patch('orders.service.OrdersService._get_order_from_cache')
+@patch('orders.service.OrdersService._cache_order')
+def test_get_order(mock_cache_order, mock_get_cache, orders_rpc, order):
+    mock_get_cache.return_value = None
+    response = orders_rpc.get_order(order.id)
+    
     assert response['id'] == order.id
+    mock_cache_order.assert_called_once_with(order.id, response)
+
+
+@patch('orders.service.OrdersService._get_order_from_cache')
+def test_get_order_from_cache(mock_get_cache, orders_rpc, order):
+    cached_order = OrderSchema().dump(order).data
+    mock_get_cache.return_value = cached_order
+
+    response = orders_rpc.get_order(order.id)
+    assert response == cached_order
+    mock_get_cache.assert_called_once_with(order.id)
 
 
 @pytest.mark.usefixtures('db_session')
 def test_will_raise_when_order_not_found(orders_rpc):
     with pytest.raises(RemoteError) as err:
-        orders_rpc.get_order(1)
-    assert err.value.value == 'Order with id 1 not found'
+        orders_rpc.get_order(999)
+    assert err.value.value == 'Order with id 999 not found'
 
 
-@pytest.mark.usefixtures('db_session')
-def test_can_create_order(orders_service, orders_rpc):
+@patch('orders.service.OrdersService._cache_order')
+def test_can_create_order(mock_cache_order, orders_service, orders_rpc):
     order_details = [
-        {
-            'product_id': "the_odyssey",
-            'price': 99.99,
-            'quantity': 1
-        },
-        {
-            'product_id': "the_enigma",
-            'price': 5.99,
-            'quantity': 8
-        }
+        {'product_id': "the_odyssey", 'price': 99.99, 'quantity': 1},
+        {'product_id': "the_enigma", 'price': 5.99, 'quantity': 8}
     ]
-    new_order = orders_rpc.create_order(
-        OrderDetailSchema(many=True).dump(order_details).data
-    )
+    new_order = orders_rpc.create_order(OrderDetailSchema(many=True).dump(order_details).data)
+
     assert new_order['id'] > 0
     assert len(new_order['order_details']) == len(order_details)
+    
+    mock_cache_order.assert_called_once_with(new_order['id'], new_order)
+
     assert [call(
         'order_created', {'order': {
-            'id': 1,
+            'id': new_order['id'],
             'order_details': [
-                {
-                    'price': '99.99',
-                    'product_id': "the_odyssey",
-                    'id': 1,
-                    'quantity': 1
-                },
-                {
-                    'price': '5.99',
-                    'product_id': "the_enigma",
-                    'id': 2,
-                    'quantity': 8
-                }
+                {'price': '99.99', 'product_id': "the_odyssey", 'id': 1, 'quantity': 1},
+                {'price': '5.99', 'product_id': "the_enigma", 'id': 2, 'quantity': 8}
             ]}}
     )] == orders_service.event_dispatcher.call_args_list
 

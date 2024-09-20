@@ -3,6 +3,7 @@ PRODUCT_IMAGE_ROOT: "http://www.example.com/airship/images"
 DB_URIS:
     "orders:Base": ${POSTGRES_URI:"postgres://postgres:postgres@localhost:5432/orders"}
 REDIS_URI: ${REDIS_URI:"redis://localhost:6379/dev"}
+REDIS_CACHE_URI: ${REDIS_CACHE_URI:"redis://localhost:6379/1"}
 max_workers: ${MAX_WORKERS:5}
 WEB_SERVER_ADDRESS: 0.0.0.0:${PORT:8000}
 WEB_CONCURRENCY: ${MAX_WORKERS:5}
