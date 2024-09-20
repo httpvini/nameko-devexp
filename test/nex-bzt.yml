@@ -110,19 +110,19 @@ scenarios:
         - action: continue
 
     # 5. List Orders
-      - url: /orders
-        label: orders-list
-        think-time: uniform(0s, 0s)
-        method: GET
+    - url: /orders
+      label: orders-list
+      think-time: uniform(0s, 0s)
+      method: GET
 
-        assert:
-        - contains:
-          - 200
-          subject: http-code
-          not: false
-        extract-jsonpath:
-          orders: $.[*]
-          default: NOT_FOUND
+      assert:
+      - contains:
+        - 200
+        subject: http-code
+        not: false
+      extract-jsonpath:
+        orders: $.[*]
+        default: NOT_FOUND
 
     # 6. Delete Product
     - url: /products/${product_id}
